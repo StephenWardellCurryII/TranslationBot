@@ -1,12 +1,9 @@
-# main.py
-
 import os
 import tempfile
 import uuid
-import requests
-import scipy.io.wavfile
 from typing import List
 from gtts import gTTS
+from googletrans import Translator
 from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import SystemMessage, HumanMessage
@@ -31,23 +28,15 @@ def summarize_text(text: str) -> str:
     chain = prompt | llm
     return chain.invoke({"text": text}).content.strip()
 
+# ======================= TRANSLATION (googletrans) =======================
+translator = Translator()
 
-# ======================= TRANSLATION (API) =======================
 def translate(text: str, target_lang: str) -> str:
-    url = "https://libretranslate.com/translate"
-    payload = {
-        "q": text,
-        "source": "en",
-        "target": target_lang,
-        "format": "text"
-    }
     try:
-        response = requests.post(url, data=payload, timeout=20)
-        response.raise_for_status()
-        return response.json()["translatedText"]
+        result = translator.translate(text, dest=target_lang)
+        return result.text
     except Exception as e:
         return f"[Translation Error] {e}"
-
 
 # ======================= TEXT-TO-SPEECH (gTTS) =======================
 def text_to_speech(text: str, lang="hi") -> str:
@@ -60,7 +49,6 @@ def text_to_speech(text: str, lang="hi") -> str:
     except Exception as e:
         print(f"TTS Error: {e}")
         return ""
-
 
 # ======================= PDF PROCESSING + VECTOR DB =======================
 def process_pdf(file_path: str):
@@ -75,13 +63,10 @@ def process_pdf(file_path: str):
     retriever = vectordb.as_retriever()
     return chunks, retriever
 
-
 # ======================= SUMMARIZE CHUNKS =======================
 def summarize_chunks(chunks: List[str]) -> str:
-    # Limit to first 10 chunks to avoid long waits
     summaries = [summarize_text(doc.page_content) for doc in chunks[:10]]
     return "\n\n".join(summaries)
-
 
 # ======================= RAG Q&A =======================
 def answer_question(retriever, question: str) -> str:
