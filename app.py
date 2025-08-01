@@ -23,6 +23,8 @@ input_type = st.radio("Select input type:", ["Text", "PDF Document"])
 # =============== TEXT INPUT ===================== #
 if input_type == "Text":
     user_input = st.text_area("Enter the text to summarize:")
+    st.write("DEBUG: User input:", repr(user_input))
+
 
     if st.button("Generate Summary"):
         if user_input.strip():
