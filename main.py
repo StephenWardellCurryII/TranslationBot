@@ -20,6 +20,16 @@ load_dotenv()
 # ======================= LLM INITIALIZATION =======================
 llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
 
+# ======================= LOAD ARGOTRANSLATE MODELS =======================
+def load_argotranslate_models():
+    try:
+        argostranslate.package.update_package_index()
+        argostranslate.translate.load_installed_packages()
+    except Exception as e:
+        print(f"[ArgoTranslate Error] Failed to load packages: {e}")
+
+load_argotranslate_models()
+
 # ======================= SUMMARIZATION =======================
 def summarize_text(text: str) -> str:
     prompt = ChatPromptTemplate.from_messages([
@@ -30,38 +40,30 @@ def summarize_text(text: str) -> str:
     return chain.invoke({"text": text}).content.strip()
 
 # ======================= TRANSLATION (argostranslate) =======================
-# Load translation models
-try:
-    argostranslate.package.update_package_index()
-    argostranslate.translate.load_installed_packages()
-except Exception as e:
-    print(f"[ArgoTranslation Error] Failed to load packages: {e}")
-
 def translate(text: str, target_lang: str) -> str:
     try:
-        # Map standard lang codes to ArgoTranslate ones
         lang_map = {
             "hi": "hi", "bn": "bn", "ta": "ta",
             "te": "te", "ml": "ml", "kn": "kn"
         }
         if target_lang not in lang_map:
-            return "[Translation Error] Unsupported language"
+            return "[Translation Error] Unsupported target language"
 
-        from_lang = "en"
-        to_lang = lang_map[target_lang]
+        from_lang_code = "en"
+        to_lang_code = lang_map[target_lang]
 
         installed_languages = argostranslate.translate.get_installed_languages()
-        from_lang_obj = next((lang for lang in installed_languages if lang.code == from_lang), None)
-        to_lang_obj = next((lang for lang in installed_languages if lang.code == to_lang), None)
+        from_lang_obj = next((lang for lang in installed_languages if lang.code == from_lang_code), None)
+        to_lang_obj = next((lang for lang in installed_languages if lang.code == to_lang_code), None)
 
         if not from_lang_obj or not to_lang_obj:
-            return "[Translation Error] Languages not installed"
+            return "[Translation Error] Required languages not installed"
 
         translation = from_lang_obj.get_translation(to_lang_obj)
         return translation.translate(text)
 
     except Exception as e:
-        return f"[Translation Error] {e}"
+        return f"[Translation Error] {str(e)}"
 
 # ======================= TEXT-TO-SPEECH (gTTS) =======================
 def text_to_speech(text: str, lang="hi") -> str:
