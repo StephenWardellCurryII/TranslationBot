@@ -34,10 +34,10 @@ load_argotranslate_models()
 def summarize_text(text: str) -> str:
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(content="You are a summarizer of the highest quality and clarity."),
-        HumanMessage(content="{text}")
+        HumanMessage(content="{input}")
     ])
     chain = prompt | llm
-    return chain.invoke({"text": text}).content.strip()
+    return chain.invoke({"input": text}).content.strip()
 
 # ======================= TRANSLATION (argostranslate) =======================
 def translate(text: str, target_lang: str) -> str:
