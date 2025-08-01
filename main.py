@@ -12,14 +12,12 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
-
-# === NEW: Argos Translate Imports ===
 import argostranslate.package
 import argostranslate.translate
 
 load_dotenv()
 
-# ======================= LLM INIT =======================
+# ======================= LLM INITIALIZATION =======================
 llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
 
 # ======================= SUMMARIZATION =======================
@@ -31,22 +29,37 @@ def summarize_text(text: str) -> str:
     chain = prompt | llm
     return chain.invoke({"text": text}).content.strip()
 
-# ======================= TRANSLATION (Argos Translate) =======================
-def translate(text: str, target_lang_code: str) -> str:
+# ======================= TRANSLATION (argostranslate) =======================
+# Load translation models
+try:
+    argostranslate.package.update_package_index()
+    argostranslate.translate.load_installed_packages()
+except Exception as e:
+    print(f"[ArgoTranslation Error] Failed to load packages: {e}")
+
+def translate(text: str, target_lang: str) -> str:
     try:
-        # Refresh installed languages
-        argostranslate.translate.load_installed_packages()
+        # Map standard lang codes to ArgoTranslate ones
+        lang_map = {
+            "hi": "hi", "bn": "bn", "ta": "ta",
+            "te": "te", "ml": "ml", "kn": "kn"
+        }
+        if target_lang not in lang_map:
+            return "[Translation Error] Unsupported language"
 
-        # Find matching translation pair
-        available_pairs = argostranslate.translate.get_installed_languages()
-        from_lang = next((lang for lang in available_pairs if lang.code == "en"), None)
-        to_lang = next((lang for lang in available_pairs if lang.code == target_lang_code), None)
+        from_lang = "en"
+        to_lang = lang_map[target_lang]
 
-        if not from_lang or not to_lang:
-            raise ValueError(f"Language pair en → {target_lang_code} not installed.")
+        installed_languages = argostranslate.translate.get_installed_languages()
+        from_lang_obj = next((lang for lang in installed_languages if lang.code == from_lang), None)
+        to_lang_obj = next((lang for lang in installed_languages if lang.code == to_lang), None)
 
-        translation = from_lang.get_translation(to_lang)
+        if not from_lang_obj or not to_lang_obj:
+            return "[Translation Error] Languages not installed"
+
+        translation = from_lang_obj.get_translation(to_lang_obj)
         return translation.translate(text)
+
     except Exception as e:
         return f"[Translation Error] {e}"
 
@@ -59,14 +72,14 @@ def text_to_speech(text: str, lang="hi") -> str:
         tts.save(path)
         return path
     except Exception as e:
-        print(f"TTS Error: {e}")
+        print(f"[TTS Error] {e}")
         return ""
 
 # ======================= PDF PROCESSING + VECTOR DB =======================
 def process_pdf(file_path: str):
     loader = PyPDFLoader(file_path)
     pages = loader.load()
-
+    
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
     chunks = text_splitter.split_documents(pages)
 
