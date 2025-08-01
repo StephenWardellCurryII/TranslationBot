@@ -3,7 +3,6 @@ import tempfile
 import uuid
 from typing import List
 from gtts import gTTS
-from googletrans import Translator
 from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import SystemMessage, HumanMessage
@@ -14,9 +13,13 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 
+# === NEW: Argos Translate Imports ===
+import argostranslate.package
+import argostranslate.translate
+
 load_dotenv()
 
-# Initialize LLM
+# ======================= LLM INIT =======================
 llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
 
 # ======================= SUMMARIZATION =======================
@@ -28,13 +31,22 @@ def summarize_text(text: str) -> str:
     chain = prompt | llm
     return chain.invoke({"text": text}).content.strip()
 
-# ======================= TRANSLATION (googletrans) =======================
-translator = Translator()
-
-def translate(text: str, target_lang: str) -> str:
+# ======================= TRANSLATION (Argos Translate) =======================
+def translate(text: str, target_lang_code: str) -> str:
     try:
-        result = translator.translate(text, dest=target_lang)
-        return result.text
+        # Refresh installed languages
+        argostranslate.translate.load_installed_packages()
+
+        # Find matching translation pair
+        available_pairs = argostranslate.translate.get_installed_languages()
+        from_lang = next((lang for lang in available_pairs if lang.code == "en"), None)
+        to_lang = next((lang for lang in available_pairs if lang.code == target_lang_code), None)
+
+        if not from_lang or not to_lang:
+            raise ValueError(f"Language pair en → {target_lang_code} not installed.")
+
+        translation = from_lang.get_translation(to_lang)
+        return translation.translate(text)
     except Exception as e:
         return f"[Translation Error] {e}"
 
@@ -54,7 +66,7 @@ def text_to_speech(text: str, lang="hi") -> str:
 def process_pdf(file_path: str):
     loader = PyPDFLoader(file_path)
     pages = loader.load()
-    
+
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
     chunks = text_splitter.split_documents(pages)
 

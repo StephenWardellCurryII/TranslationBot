@@ -1,0 +1,7 @@
+#!C:\Users\Parinita\Documents\translationbot\transbot\Scripts\python.exe
+
+from argostranslate import cli
+
+cli.main()
+
+

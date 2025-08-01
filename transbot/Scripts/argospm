@@ -1,0 +1,5 @@
+#!C:\Users\Parinita\Documents\translationbot\transbot\Scripts\python.exe
+
+from argostranslate import argospm
+
+argospm.main()
