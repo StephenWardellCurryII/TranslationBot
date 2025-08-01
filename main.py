@@ -1,6 +1,6 @@
 import os
 from typing import List
-from langchain_community.chat_models import ChatGroq
+from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import SystemMessage, HumanMessage
 from langchain.chains import RetrievalQA
@@ -14,6 +14,9 @@ import uuid
 import numpy as np
 import scipy.io.wavfile
 from bark import SAMPLE_RATE, generate_audio
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Init LLM
 llm = ChatGroq(temperature=0, model_name="llama3-8b-8192")
