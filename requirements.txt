@@ -1,0 +1,13 @@
+streamlit
+langchain
+transformers
+torch
+sentence-transformers
+chromadb
+PyPDF2
+groq
+bark
+scipy
+encodec
+numpy
+torchaudio
