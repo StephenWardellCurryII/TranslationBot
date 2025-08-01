@@ -1,8 +1,8 @@
-# app.py (Streamlit)
+# --- app.py (Frontend) ---
 
 import os
 import streamlit as st
-from main import summarize_text, translate, text_to_speech, process_pdf, summarize_chunks, answer_question
+from main import summarize_text, translate, text_to_speech, process_pdf, summarize_chunks, answer_question, answer_from_text
 
 LANG_MAP = {
     "Hindi": "hi",
@@ -38,16 +38,19 @@ if input_type == "Text":
 
             question = st.text_input("Ask a question about the summary:")
             if question.strip():
-                translated_q = translate(question, "en")
-                answer_en = summarize_text(user_input + "\n\nQuestion: " + translated_q)
-                answer_local = translate(answer_en, lang_code)
+                if not user_input.strip():
+                    st.warning("Please enter text before asking a question.")
+                else:
+                    translated_q = translate(question, "en")
+                    answer_en = answer_from_text(user_input, translated_q)
+                    answer_local = translate(answer_en, lang_code)
 
-                st.subheader("Answer:")
-                st.success(answer_local)
+                    st.subheader("Answer:")
+                    st.success(answer_local)
 
-                audio_ans = text_to_speech(answer_local, lang=lang_code)
-                if audio_ans:
-                    st.audio(audio_ans, format="audio/mp3")
+                    audio_ans = text_to_speech(answer_local, lang=lang_code)
+                    if audio_ans:
+                        st.audio(audio_ans, format="audio/mp3")
         else:
             st.warning("Please enter some text to summarize.")
 

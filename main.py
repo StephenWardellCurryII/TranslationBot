@@ -1,4 +1,4 @@
-# main.py
+# --- main.py (Backend) ---
 
 import os
 import tempfile
@@ -34,12 +34,23 @@ load_argotranslate_models()
 
 # Summarize text using LLM
 def summarize_text(text: str) -> str:
+    if not text.strip():
+        return "[Error] No text provided for summarization"
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(content="Summarize the following content clearly and concisely:"),
         HumanMessage(content="{text}")
     ])
     chain = prompt | llm
     return chain.invoke({"text": text}).content.strip()
+
+# New QA function for text
+def answer_from_text(text: str, question: str) -> str:
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessage(content="You're a helpful assistant answering questions from a given text."),
+        HumanMessage(content="Context:\n{text}\n\nQuestion:\n{question}")
+    ])
+    chain = prompt | llm
+    return chain.invoke({"text": text, "question": question}).content.strip()
 
 # Translate using Argo
 def translate(text: str, target_lang: str) -> str:
@@ -83,7 +94,7 @@ def process_pdf(file_path: str):
 def summarize_chunks(chunks: List[str]) -> str:
     return "\n\n".join(summarize_text(doc.page_content) for doc in chunks[:5])
 
-# Retrieval QA
+# Retrieval QA for PDF
 def answer_question(retriever, question: str) -> str:
     qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
     return qa.run(question)
