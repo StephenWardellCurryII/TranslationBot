@@ -36,21 +36,21 @@ load_argotranslate_models()
 def summarize_text(text: str) -> str:
     if not text.strip():
         return "[Error] No text provided for summarization"
-
-    prompt = ChatPromptTemplate.from_messages(
+    else:
+        prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessage(content="Summarize the following content clearly and concisely:"),
             HumanMessage(content="{text}")
         ],
-    )
+        )
 
-    chain = prompt | llm
+        chain = prompt | llm
 
-    try:
-        result = chain.invoke({"text": text})
-        return result.content.strip()
-    except Exception as e:
-        return f"[Error] Summarization failed: {e}"
+        try:
+            result = chain.invoke({"text": text})
+            return result.content.strip()
+        except Exception as e:
+            return f"[Error] Summarization failed: {e}"
 
 
 # New QA function for text
