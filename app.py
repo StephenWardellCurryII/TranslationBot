@@ -13,7 +13,7 @@ LANG_MAP = {
 }
 
 st.set_page_config(page_title="Multilingual Summarizer", layout="centered")
-st.title("🧠 Multilingual AI Summarizer & Q&A")
+st.title("Multilingual AI Summarizer & Q&A")
 
 language = st.selectbox("Choose your language:", LANG_MAP.keys())
 lang_code = LANG_MAP[language]

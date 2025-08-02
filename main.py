@@ -42,7 +42,6 @@ def summarize_text(text: str) -> str:
             SystemMessage(content="Summarize the following content clearly and concisely:"),
             HumanMessage(content="{text}")
         ],
-        input_variables=["text"]  # ✅ Add this line
     )
 
     chain = prompt | llm
