@@ -25,7 +25,7 @@ if input_type == "Text":
     user_input = st.text_area("Enter the text to summarize:",key="summary_input")
     st.write("DEBUG: User input:", repr(user_input))
 
-
+    
     if st.button("Generate Summary"):
         input_text=st.session_state.get("summary_input", "")
         st.write("DEBUG: Current session_state input:", repr(st.session_state.get("summary_input", "")))
