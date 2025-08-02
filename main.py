@@ -6,8 +6,8 @@ import uuid
 from typing import List
 from gtts import gTTS
 from langchain_groq import ChatGroq
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema import SystemMessage, HumanMessage
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
+from langchain.schema import SystemMessage, HumanMessage , AIMessage
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -37,20 +37,17 @@ def summarize_text(text: str) -> str:
     print("DEBUG: Raw text received by summarize_text:", repr(text))
     if not text.strip():
         return "[Error] No text provided for summarization"
-    else:
-        prompt = ChatPromptTemplate.from_messages(
-        [
-            SystemMessage(content="Summarize the following content clearly and concisely:"),
-            HumanMessage(content="{text}")
-        ],
-        )
+    try:
+        # Prepare prompt manually
+        messages = [
+            SystemMessage(content="You are a helpful assistant that summarizes text clearly and concisely."),
+            HumanMessage(content=text)
+        ]
 
-        chain = prompt | llm
-
-        try:
-            result = chain.invoke({"text": text})
-            return result.content.strip()
-        except Exception as e:
+        result = llm.invoke(messages)
+        print("DEBUG: Raw LLM output:", repr(result))
+        return result.content.strip()
+    except Exception as e:
             return f"[Error] Summarization failed: {e}"
 
 
