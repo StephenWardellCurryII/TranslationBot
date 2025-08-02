@@ -53,12 +53,26 @@ def summarize_text(text: str) -> str:
 
 # New QA function for text
 def answer_from_text(text: str, question: str) -> str:
-    prompt = ChatPromptTemplate.from_messages([
-        SystemMessage(content="You're a helpful assistant answering questions from a given text."),
-        HumanMessage(content="Context:\n{text}\n\nQuestion:\n{question}")
-    ])
-    chain = prompt | llm
-    return chain.invoke({"text": text, "question": question}).content.strip()
+    print("DEBUG: Context:", repr(text))
+    print("DEBUG: Question:", repr(question))
+
+    if not text.strip() or not question.strip():
+        return "[Error] Both context and question must be provided."
+
+    try:
+        messages = [
+            SystemMessage(content="You're a helpful assistant answering questions from a given text."),
+            HumanMessage(content=f"Context:\n{text}\n\nQuestion:\n{question}")
+        ]
+
+        result = llm.invoke(messages)
+        print("DEBUG: LLM raw answer:", repr(result))
+        return result.content.strip()
+
+    except Exception as e:
+        print("DEBUG: Error in answering:", e)
+        return f"[Error] Failed to generate answer: {e}"
+
 
 # Translate using Argo
 def translate(text: str, target_lang: str) -> str:

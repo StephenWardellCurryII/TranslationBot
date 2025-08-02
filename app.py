@@ -47,7 +47,7 @@ if input_type == "Text":
                     st.warning("Please enter text before asking a question.")
                 else:
                     translated_q = translate(question, "en")
-                    answer_en = answer_from_text(user_input, translated_q)
+                    answer_en = answer_from_text(input_text, translated_q)
                     answer_local = translate(answer_en, lang_code)
 
                     st.subheader("Answer:")
