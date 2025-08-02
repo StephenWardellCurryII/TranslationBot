@@ -22,13 +22,14 @@ input_type = st.radio("Select input type:", ["Text", "PDF Document"])
 
 # =============== TEXT INPUT ===================== #
 if input_type == "Text":
-    user_input = st.text_area("Enter the text to summarize:")
+    user_input = st.text_area("Enter the text to summarize:",key="summary_input")
     st.write("DEBUG: User input:", repr(user_input))
 
 
     if st.button("Generate Summary"):
+        input_text=st.session_state["summary_input"]
         if user_input.strip():
-            summary_en = summarize_text(user_input)
+            summary_en = summarize_text(input_text)
             summary_local = translate(summary_en, lang_code)
 
             st.subheader("Summarized Text:")
