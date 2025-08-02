@@ -11,7 +11,7 @@ from langchain.schema import SystemMessage, HumanMessage , AIMessage
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import Chroma, FAISS
 from langchain.embeddings import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 import argostranslate.package
@@ -109,7 +109,7 @@ def process_pdf(file_path: str):
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
     chunks = splitter.split_documents(pages)
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    vectordb = Chroma.from_documents(chunks, embedding=embeddings)
+    vectordb = FAISS.from_documents(chunks, embedding=embeddings)
     return chunks, vectordb.as_retriever()
 
 # Summarize multiple chunks
