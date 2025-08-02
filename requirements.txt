@@ -11,3 +11,7 @@ scipy
 encodec
 numpy
 torchaudio
+gtts
+faiss-cpu
+argostranslate
+langchain-community
