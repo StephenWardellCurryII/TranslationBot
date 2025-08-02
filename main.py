@@ -34,6 +34,7 @@ load_argotranslate_models()
 
 # Summarize text using LLM
 def summarize_text(text: str) -> str:
+    print("DEBUG: Raw text received by summarize_text:", repr(text))
     if not text.strip():
         return "[Error] No text provided for summarization"
     else:

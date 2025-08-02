@@ -28,8 +28,10 @@ if input_type == "Text":
 
     if st.button("Generate Summary"):
         input_text=st.session_state.get("summary_input", "")
+        st.write("DEBUG: Current session_state input:", repr(st.session_state.get("summary_input", "")))
         if user_input.strip():
             summary_en = summarize_text(input_text)
+            st.write("DEBUG: English Summary:", repr(summary_en))
             summary_local = translate(summary_en, lang_code)
 
             st.subheader("Summarized Text:")
